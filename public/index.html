@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Location App</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Select Location</h2>
+    <div class="select-group">
+      <select id="countrySelect"><option value="">Country</option></select>
+      <select id="provinceSelect"><option value="">Province</option></select>
+      <select id="citySelect"><option value="">City</option></select>
+      <select id="locationSelect"><option value="">Custom Location</option></select>
+    </div>
+    <div id="map"></div>
+  </div>
+  <div class="footer">Location App © 2025</div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    let map, marker;
+    function initMap() {
+      map = L.map('map').setView([20, 0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    }
+
+    document.getElementById('countrySelect').addEventListener('change', async e => {
+      let code = e.target.value;
+      provinceSelect.innerHTML = '<option value="">Province</option>';
+      citySelect.innerHTML = '<option value="">City</option>';
+      if (!code) return;
+      let d = await (await fetch('/countries/' + code + '/provinces')).json();
+      d.forEach(p => {
+        let o = document.createElement('option');
+        o.value = p.id;
+        o.text = p.name;
+        provinceSelect.add(o);
+      });
+    });
+
+    document.getElementById('provinceSelect').addEventListener('change', async e => {
+      let id = e.target.value;
+      citySelect.innerHTML = '<option value="">City</option>';
+      if (!id) return;
+      let d = await (await fetch('/provinces/' + id + '/cities')).json();
+      d.forEach(c => {
+        let o = document.createElement('option');
+        o.value = JSON.stringify({ lat: c.lat, lng: c.lng });
+        o.text = c.name;
+        citySelect.add(o);
+      });
+    });
+
+    document.getElementById('citySelect').addEventListener('change', e => {
+      if (!e.target.value) return;
+      let { lat, lng } = JSON.parse(e.target.value);
+      map.setView([lat, lng], 10);
+      if (!marker) marker = L.marker([lat, lng]).addTo(map);
+      else marker.setLatLng([lat, lng]);
+    });
+
+    document.getElementById('locationSelect').addEventListener('change', e => {
+      if (!e.target.value) return;
+      let { lat, lng } = JSON.parse(e.target.value);
+      map.setView([lat, lng], 12);
+      if (!marker) marker = L.marker([lat, lng]).addTo(map);
+      else marker.setLatLng([lat, lng]);
+    });
+
+    async function loadCountries() {
+      let d = await (await fetch('/countries')).json();
+      d.forEach(c => {
+        let o = document.createElement('option');
+        o.value = c.code;
+        o.text = c.name;
+        countrySelect.add(o);
+      });
+    }
+
+    async function loadLocations() {
+      let d = await (await fetch('/db/locations')).json();
+      d.forEach(l => {
+        let o = document.createElement('option');
+        o.value = JSON.stringify({ lat: l.lat, lng: l.lng });
+        o.text = l.name;
+        locationSelect.add(o);
+      });
+    }
+
+    initMap();
+    loadCountries();
+    loadLocations();
+  </script>
+</body>
+</html>
+

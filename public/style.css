@@ -1,0 +1,94 @@
+/* Reset and base styling */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  background: linear-gradient(135deg, #d4e7f5, #f8fbff);
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Card container to hold everything neatly */
+.container {
+  background: #fff;
+  max-width: 1000px;
+  width: 90%;
+  padding: 30px;
+  margin-top: 40px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Heading styling */
+h2 {
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1a3d6d;
+  letter-spacing: 0.5px;
+}
+
+/* Dropdown styling */
+.select-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+select {
+  appearance: none;
+  padding: 10px 14px;
+  font-size: 15px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  background-color: #f9fafb;
+  color: #333;
+  cursor: pointer;
+  min-width: 160px;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+select:focus, select:hover {
+  border-color: #007bff;
+  background-color: #ffffff;
+  box-shadow: 0 0 6px rgba(0,123,255,0.3);
+  outline: none;
+}
+
+/* Map styling */
+#map {
+  width: 100%;
+  max-width: 900px;
+  height: 500px;
+  margin-top: 15px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Subtle footer */
+.footer {
+  margin-top: 40px;
+  font-size: 13px;
+  color: #666;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  select {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - CRUD</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:Arial;padding:20px;} input,select,button{margin:5px 0;padding:5px;}
+    ul{list-style:none;padding:0;} li{margin:5px 0;}
+  </style>
+</head>
+<body>
+<h2>Add Province</h2>
+<input id="provName" placeholder="Province name">
+<input id="provCountryCode" placeholder="Country code e.g. PK">
+<button onclick="addProvince()">Add Province</button>
+<button onclick="loadProvinces()">Refresh Provinces</button>
+<ul id="provincesList"></ul>
+
+<h2>Add City</h2>
+<input id="cityName" placeholder="City name">
+<input id="lat" placeholder="Lat"><input id="lng" placeholder="Lng">
+<select id="cityProvinceSelect"></select>
+<button onclick="addCity()">Add City</button>
+<select id="citiesProvinceSelect"></select>
+<button onclick="loadCities()">Load Cities</button>
+<ul id="citiesList"></ul>
+
+<h2>Add Location</h2>
+<input id="locName" placeholder="Location name">
+<input id="locLat" placeholder="Lat"><input id="locLng" placeholder="Lng">
+<select id="locCitySelect"></select>
+<button onclick="addLocation()">Add Location</button>
+<button onclick="loadLocations()">Load Locations</button>
+<ul id="locationsList"></ul>
+
+<script>
+async function addProvince(){let n=provName.value,c=provCountryCode.value;if(!n||!c)return alert('Fill both');
+await fetch('/provinces',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,countryCode:c})});
+alert('✅ Added');loadProvinces();}
+async function deleteProvince(id){if(confirm('Delete?')){await fetch('/provinces/'+id,{method:'DELETE'});alert('🗑');loadProvinces();}}
+async function loadProvinces(){
+  let d=await(await fetch('/db/provinces')).json(); provincesList.innerHTML='';
+  cityProvinceSelect.innerHTML='<option value="">Select</option>';
+  citiesProvinceSelect.innerHTML='<option value="">Select</option>';
+  d.forEach(p=>{let li=document.createElement('li');li.textContent=p.name;
+  let b=document.createElement('button');b.textContent='Delete';b.onclick=()=>deleteProvince(p._id);li.appendChild(b);provincesList.appendChild(li);
+  [cityProvinceSelect,citiesProvinceSelect].forEach(s=>{let o=document.createElement('option');o.value=p._id;o.text=p.name;s.add(o);});});
+}
+
+async function addCity(){
+  let n=cityName.value,lat=parseFloat(lat.value),lng=parseFloat(lng.value),pid=cityProvinceSelect.value;
+  if(!n||!pid||isNaN(lat)||isNaN(lng))return alert('Fill all');await fetch('/cities',{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({name:n,lat,lng,provinceId:pid})});alert('✅');loadCities();}
+async function deleteCity(id){if(confirm('Delete?')){await fetch('/cities/'+id,{method:'DELETE'});alert('🗑');loadCities();}}
+async function loadCities(){
+  let pid=citiesProvinceSelect.value;if(!pid)return alert('Select province');
+  let d=await(await fetch('/db/cities/'+pid)).json();citiesList.innerHTML='';locCitySelect.innerHTML='<option value="">(optional)</option>';
+  d.forEach(c=>{let li=document.createElement('li');li.textContent=c.name;
+  let b=document.createElement('button');b.textContent='Delete';b.onclick=()=>deleteCity(c._id);li.appendChild(b);citiesList.appendChild(li);
+  let o=document.createElement('option');o.value=c._id;o.text=c.name;locCitySelect.add(o);});}
+
+async function addLocation(){
+  let n=locName.value,lat=parseFloat(locLat.value),lng=parseFloat(locLng.value),cid=locCitySelect.value||null;
+  if(!n||isNaN(lat)||isNaN(lng))return alert('Fill');await fetch('/locations',{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({name:n,lat,lng,cityId:cid})});alert('✅');loadLocations();}
+async function deleteLocation(id){if(confirm('Delete?')){await fetch('/locations/'+id,{method:'DELETE'});alert('🗑');loadLocations();}}
+async function loadLocations(){
+  let d=await(await fetch('/db/locations')).json();locationsList.innerHTML='';
+  d.forEach(l=>{let li=document.createElement('li');li.textContent=l.name;
+  let b=document.createElement('button');b.textContent='Delete';b.onclick=()=>deleteLocation(l._id);li.appendChild(b);locationsList.appendChild(li);});
+}
+
+loadProvinces();
+</script>
+</body>
+</html>
+
