@@ -23,8 +23,7 @@ jobs:
       - name: Sync files to S3 bucket
         run: |
           aws s3 sync ./${{ env.SOURCE_DIR }} s3://${{ secrets.S3_BUCKET }} \
-            --delete \
-            --acl public-read
+            --delete
         env:
           SOURCE_DIR: public  # or '.' if index.html at repo root
 
